@@ -1,0 +1,32 @@
+name: SecretScan
+description: Runs Gitleaks with custom rules
+# inputs:
+#   checkout-ref:
+#     required: false
+#     default: ''
+#   checkout-token:
+#     required: false
+#     default: ''
+#   checkout-token-secret-ref:
+#     required: false
+#     default: ''
+#   checkout-fetch-depth:
+#     required: false
+#     default: 0
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run Gitleaks with custom rules using prebuilt image
+      run: |
+        docker run --rm \
+          -v "$GITHUB_WORKSPACE:/app" \
+          -w /app \
+          poorneshthatturi/poornesh-gitleaks:latest \
+          detect \
+            --source=/app \
+            --config=/app/secret-scan/rules.toml \
+            --no-git \
+            --verbose \
+            --exit-code 1 || true
+      shell: bash
