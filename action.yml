@@ -25,7 +25,6 @@ runs:
           poorneshthatturi/poornesh-gitleaks:latest \
           detect \
             --source=/app \
-            --config=/app/secret-scan/rules.toml \
             --no-git \
             --verbose \
             --exit-code 1 || true
