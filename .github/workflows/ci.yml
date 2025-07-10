@@ -18,10 +18,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Gitleaks Secret Scan
-        uses: PoorneshORG/Adaptavant@dojoaction
-
-      - name: Defectdojo Upload
+      - name: 🔐 Gitleaks Secret Scan & DefectDojo Upload
         uses: PoorneshORG/gitleaks-scan@dojoaction
         with:
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
@@ -30,4 +27,3 @@ jobs:
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
           test-title: ${{ github.ref_name }}-${{ github.sha }}
-
