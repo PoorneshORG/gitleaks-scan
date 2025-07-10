@@ -19,10 +19,10 @@ jobs:
           fetch-depth: 0
 
       - name: Gitleaks Secret Scan
-        uses: PoorneshORG/Adaptavant@gitleaks
+        uses: PoorneshORG/Adaptavant@dojoaction
 
       - name: Defectdojo Upload
-        uses: PoorneshORG/gitleaks-scan@gitleaks
+        uses: PoorneshORG/gitleaks-scan@dojoaction
         with:
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
