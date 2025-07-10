@@ -1,23 +1,31 @@
-name: SecretScan
-description: Runs Gitleaks with custom rules
-# inputs:
-#   checkout-ref:
-#     required: false
-#     default: ''
-#   checkout-token:
-#     required: false
-#     default: ''
-#   checkout-token-secret-ref:
-#     required: false
-#     default: ''
-#   checkout-fetch-depth:
-#     required: false
-#     default: 0
+name: SecretScan and Upload
+description: Runs Gitleaks scan with custom rules and uploads results to DefectDojo
+
+inputs:
+  dojo-url:
+    description: "DefectDojo instance URL"
+    required: true
+  dojo-api-key:
+    description: "API key for DefectDojo"
+    required: true
+  product-name:
+    description: "DefectDojo product name"
+    required: true
+  report-file:
+    description: "Path to Gitleaks JSON output"
+    required: false
+    default: gitleaks-report.json
+  repo-name:
+    description: "Repository name"
+    required: true
+  test-title:
+    description: "Unique test title for DefectDojo"
+    required: true
 
 runs:
   using: "composite"
   steps:
-    - name: Run Gitleaks with custom rules using prebuilt image
+    - name: 🕵️ Run Gitleaks with custom rules using prebuilt image
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
@@ -27,5 +35,20 @@ runs:
             --source=/app \
             --no-git \
             --verbose \
+            --report-format=json \
+            --report-path=${{ inputs.report-file }} \
             --exit-code 1 || true
+      shell: bash
+
+    - name: 📤 Upload Gitleaks report to DefectDojo
+      run: |
+        chmod +x ./upload_to_defectdojo.sh
+
+        ./upload_to_defectdojo.sh \
+          "${{ inputs.dojo-url }}" \
+          "${{ inputs.dojo-api-key }}" \
+          "${{ inputs.product-name }}" \
+          "${{ inputs.report-file }}" \
+          "${{ inputs.repo-name }}" \
+          "${{ inputs.test-title }}"
       shell: bash
