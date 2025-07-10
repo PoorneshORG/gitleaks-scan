@@ -29,21 +29,23 @@ echo "🔍 PRODUCT_NAME: '$PRODUCT_NAME'"
 echo "🔍 ENGAGEMENT_NAME: '$ENGAGEMENT_NAME'"
 echo "🔍 TEST_TITLE: '$TEST_TITLE'"
 
-# URL encode product name
-ENCODED_PRODUCT_NAME=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$PRODUCT_NAME'''))")
+# Get Product ID by name (reliable way)
+PRODUCT_ID=$(curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/products/" | \
+  jq -r --arg name "$PRODUCT_NAME" '.results[] | select(.name == $name) | .id')
 
-# Get Product ID
-PRODUCT_ID=$(curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/products/?name=$ENCODED_PRODUCT_NAME" | jq -r '.results[0].id')
 if [ -z "$PRODUCT_ID" ] || [ "$PRODUCT_ID" == "null" ]; then
-  echo "❌ Product '$PRODUCT_NAME' not found."
+  echo "❌ Product '$PRODUCT_NAME' not found in DefectDojo."
+  echo "📋 Available products:"
+  curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/products/" | jq -r '.results[].name'
   exit 1
 fi
-echo "✅ Product ID: $PRODUCT_ID"
 
-# Check if engagement already exists
+echo "✅ Found Product ID: $PRODUCT_ID"
+
+# Check if engagement exists
 ENGAGEMENT_ID=$(curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/engagements/?product=$PRODUCT_ID&name=$ENGAGEMENT_NAME" | jq -r '.results[0].id')
 
-if [ "$ENGAGEMENT_ID" == "null" ] || [ -z "$ENGAGEMENT_ID" ]; then
+if [ -z "$ENGAGEMENT_ID" ] || [ "$ENGAGEMENT_ID" == "null" ]; then
   echo "➕ Creating new engagement: $ENGAGEMENT_NAME"
   ENGAGEMENT_ID=$(curl -s -X POST "$DOJO_URL/api/v2/engagements/" \
     -H "$AUTH_HEADER" -H "$JSON_HEADER" \
