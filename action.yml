@@ -42,9 +42,9 @@ runs:
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
-        chmod +x ./upload_to_defectdojo.sh
+        chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
 
-        ./upload_to_defectdojo.sh \
+        "${{ github.action_path }}/upload_to_defectdojo.sh" \
           "${{ inputs.dojo-url }}" \
           "${{ inputs.dojo-api-key }}" \
           "${{ inputs.product-name }}" \
