@@ -21,3 +21,4 @@ jobs:
       - uses: PoorneshORG/Adaptavant/@gitleaks
         with:
           fetch-depth: 0 # Optional: pass any input if needed in reusable workflow
+          
