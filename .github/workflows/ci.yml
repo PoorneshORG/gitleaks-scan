@@ -18,7 +18,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: PoorneshORG/Adaptavant/@gitleaks
-        with:
-          fetch-depth: 0 # Optional: pass any input if needed in reusable workflow
-          
+      - name: Run Secret Scan with Composite Action
+        uses: PoorneshORG/Adaptavant/@gitleaks
+
