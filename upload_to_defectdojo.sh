@@ -24,15 +24,20 @@ DATE=$(date +%F)
 AUTH_HEADER="Authorization: Token $DOJO_API_KEY"
 JSON_HEADER="Content-Type: application/json"
 
-echo "📤 Uploading $SCAN_FILE to DefectDojo product='$PRODUCT_NAME', engagement='$ENGAGEMENT_NAME'..."
+echo "📤 Uploading $SCAN_FILE to DefectDojo..."
+echo "🔍 PRODUCT_NAME: '$PRODUCT_NAME'"
+echo "🔍 ENGAGEMENT_NAME: '$ENGAGEMENT_NAME'"
+echo "🔍 TEST_TITLE: '$TEST_TITLE'"
+
+# URL encode product name
+ENCODED_PRODUCT_NAME=$(python3 -c "import urllib.parse; print(urllib.parse.quote('''$PRODUCT_NAME'''))")
 
 # Get Product ID
-PRODUCT_ID=$(curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/products/?name=$PRODUCT_NAME" | jq -r '.results[0].id')
+PRODUCT_ID=$(curl -s -H "$AUTH_HEADER" "$DOJO_URL/api/v2/products/?name=$ENCODED_PRODUCT_NAME" | jq -r '.results[0].id')
 if [ -z "$PRODUCT_ID" ] || [ "$PRODUCT_ID" == "null" ]; then
   echo "❌ Product '$PRODUCT_NAME' not found."
   exit 1
 fi
-
 echo "✅ Product ID: $PRODUCT_ID"
 
 # Check if engagement already exists
