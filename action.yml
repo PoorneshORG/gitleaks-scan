@@ -42,6 +42,13 @@ runs:
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
+        echo "📌 Running upload with the following inputs:"
+        echo "  dojo-url = '${{ inputs.dojo-url }}'"
+        echo "  product-name = '${{ inputs.product-name }}'"
+        echo "  report-file = '${{ inputs.report-file }}'"
+        echo "  repo-name = '${{ inputs.repo-name }}'"
+        echo "  test-title = '${{ inputs.test-title }}'"
+
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
 
         "${{ github.action_path }}/upload_to_defectdojo.sh" \
