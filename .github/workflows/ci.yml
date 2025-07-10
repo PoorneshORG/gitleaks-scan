@@ -18,6 +18,15 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Run Secret Scan with Composite Action
+      - name: Gitleaks Secret Scan
         uses: PoorneshORG/Adaptavant@gitleaks
+
+      - name: Defectdojo Upload
+        uses: PoorneshORG/gitleaks-scan@gitleaks
+        with:
+          dojo-url: ${{ secrets.DEFECTDOJO_URL }}
+          dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
+          product-name: DevSecOps
+          repo-name: ${{ github.repository }}
+          test-title: ${{ github.ref_name }}-${{ github.sha }}
 
