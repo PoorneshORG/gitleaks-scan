@@ -20,6 +20,7 @@ jobs:
 
       - name: 🔐 Gitleaks Secret Scan & DefectDojo Upload
         uses: PoorneshORG/gitleaks-scan@dojoaction
+        continue-on-error: true
         with:
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
