@@ -19,5 +19,5 @@ jobs:
           fetch-depth: 0
 
       - name: Run Secret Scan with Composite Action
-        uses: PoorneshORG/Adaptavant@gitleaks
+        uses: PoorneshORG/gitleaks-scan@ghcr-image-action
 
