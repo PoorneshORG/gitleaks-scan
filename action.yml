@@ -1,25 +1,12 @@
 name: SecretScan
 description: Runs Gitleaks with custom rules
-# inputs:
-#   checkout-ref:
-#     required: false
-#     default: ''
-#   checkout-token:
-#     required: false
-#     default: ''
-#   checkout-token-secret-ref:
-#     required: false
-#     default: ''
-#   checkout-fetch-depth:
-#     required: false
-#     default: 0
 
 runs:
   using: "composite"
   steps:
     - name: Run Gitleaks with custom rules using prebuilt image
       run: |
-        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+        echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
@@ -30,3 +17,7 @@ runs:
             --verbose \
             --exit-code 1 || true
       shell: bash
+inputs:
+  token:
+    required: true
+    description: "GitHub token with read:packages access"
