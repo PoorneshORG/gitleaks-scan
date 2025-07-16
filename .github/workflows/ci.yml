@@ -20,4 +20,6 @@ jobs:
 
       - name: Run Secret Scan with Composite Action
         uses: PoorneshORG/gitleaks-scan@ghcr-image-action
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
