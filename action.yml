@@ -19,6 +19,7 @@ runs:
   steps:
     - name: Run Gitleaks with custom rules using prebuilt image
       run: |
+        echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
