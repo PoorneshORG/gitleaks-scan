@@ -22,7 +22,7 @@ runs:
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
-          poorneshthatturi/poornesh-gitleaks:latest \
+          ghcr.io/poorneshorg/gitleaks:latest \
           detect \
             --source=/app \
             --no-git \
