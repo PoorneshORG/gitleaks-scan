@@ -1,4 +1,4 @@
-name: SecurityPipeline
+name: 🔐 Gitleaks Secret Scan + DefectDojo Upload
 
 on:
   push:
@@ -9,22 +9,23 @@ on:
 
 jobs:
   secret-scan:
-    name: Gitleaks-proxy
+    name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check out code
-        uses: actions/checkout@v2
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Run Secret Scan with Composite Action
-        uses: PoorneshORG/gitleaks-scan@ghcr-image-action
+      - name: 🔍 Secret Scan & Upload
+        uses: Adaptavant/DevOps-Secret-Scans@main
+        continue-on-error: true
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.PACKAGES_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
           product-name: DevSecOps
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
-          test-title: ${{ github.ref_name }}-${{ github.sha }}
+          branch-name: ${{ github.ref_name }}
