@@ -19,7 +19,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔍 Secret Scan & Upload
-        uses: Adaptavant/DevOps-Secret-Scans@main
+        uses: PoorneshORG/gitleaks-scan@dojoaction
         continue-on-error: true
         with:
           token: ${{ secrets.PACKAGES_TOKEN }}
