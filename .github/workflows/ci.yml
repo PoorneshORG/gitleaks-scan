@@ -22,7 +22,7 @@ jobs:
         uses: PoorneshORG/gitleaks-scan@dojoaction
         continue-on-error: true
         with:
-          token: ${{ secrets.PACKAGES_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
           product-name: DevSecOps
