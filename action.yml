@@ -3,9 +3,8 @@ description: Runs Gitleaks scan with custom rules and uploads results to DefectD
 
 inputs:
   token:
-    required: true
     description: "GitHub token with read:packages access"
-
+    required: true
   dojo-url:
     description: "DefectDojo instance URL"
     required: true
@@ -23,17 +22,17 @@ inputs:
     description: "Repository name"
     required: true
   branch-name:
-    description: "Branch name (used in test title)"
+    description: "Branch name (used as test title)"
     required: true
 
 runs:
   using: "composite"
   steps:
-    - name: 🛂 Authenticate to GHCR
+    - name: 🔐 Login to GitHub Container Registry
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: 🕵️ Run Gitleaks with custom rules using prebuilt image
+    - name: 🕵️ Run Gitleaks scan
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
@@ -50,18 +49,16 @@ runs:
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
-        echo "📌 Uploading report:"
-        echo "  repo-name = '${{ inputs.repo-name }}'"
-        echo "  branch-name = '${{ inputs.branch-name }}'"
-        echo "  test-title = '${{ inputs.branch-name }} - $(date +%F)'"
-
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
+
+        REPO_NAME=$(basename "${{ inputs.repo-name }}")
+        TEST_TITLE="${{ inputs.branch-name }}"
 
         "${{ github.action_path }}/upload_to_defectdojo.sh" \
           "${{ inputs.dojo-url }}" \
           "${{ inputs.dojo-api-key }}" \
           "${{ inputs.product-name }}" \
           "${{ inputs.report-file }}" \
-          "${{ inputs.repo-name }}" \
-          "${{ inputs.branch-name }} - $(date +%F)"
+          "$REPO_NAME" \
+          "$TEST_TITLE"
       shell: bash
