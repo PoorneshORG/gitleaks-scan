@@ -2,6 +2,10 @@ name: SecretScan and Upload
 description: Runs Gitleaks scan with custom rules and uploads results to DefectDojo
 
 inputs:
+  token:
+    required: true
+    description: "GitHub token with read:packages access"
+
   dojo-url:
     description: "DefectDojo instance URL"
     required: true
@@ -18,19 +22,23 @@ inputs:
   repo-name:
     description: "Repository name"
     required: true
-  test-title:
-    description: "Unique test title for DefectDojo"
+  branch-name:
+    description: "Branch name (used in test title)"
     required: true
 
 runs:
   using: "composite"
   steps:
+    - name: 🛂 Authenticate to GHCR
+      run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+      shell: bash
+
     - name: 🕵️ Run Gitleaks with custom rules using prebuilt image
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
-          poorneshthatturi/poornesh-gitleaks:latest \
+          ghcr.io/poorneshorg/gitleaks:latest \
           detect \
             --source=/app \
             --no-git \
@@ -42,12 +50,10 @@ runs:
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
-        echo "📌 Running upload with the following inputs:"
-        echo "  dojo-url = '${{ inputs.dojo-url }}'"
-        echo "  product-name = '${{ inputs.product-name }}'"
-        echo "  report-file = '${{ inputs.report-file }}'"
+        echo "📌 Uploading report:"
         echo "  repo-name = '${{ inputs.repo-name }}'"
-        echo "  test-title = '${{ inputs.test-title }}'"
+        echo "  branch-name = '${{ inputs.branch-name }}'"
+        echo "  test-title = '${{ inputs.branch-name }} - $(date +%F)'"
 
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
 
@@ -57,5 +63,5 @@ runs:
           "${{ inputs.product-name }}" \
           "${{ inputs.report-file }}" \
           "${{ inputs.repo-name }}" \
-          "${{ inputs.test-title }}"
+          "${{ inputs.branch-name }} - $(date +%F)"
       shell: bash
