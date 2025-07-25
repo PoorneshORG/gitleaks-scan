@@ -58,7 +58,8 @@ if [ -z "$ENGAGEMENT_ID" ] || [ "$ENGAGEMENT_ID" == "null" ]; then
 fi
 
 # Upload or reimport scan
-TEST_TITLE="$BRANCH_NAME - $DATE"
+#TEST_TITLE="$BRANCH_NAME - $DATE"
+TEST_TITLE="$BRANCH_NAME"
 
 curl -s -X POST "$DOJO_URL/api/v2/reimport-scan/" \
   -H "$AUTH_HEADER" \
