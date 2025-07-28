@@ -1,10 +1,11 @@
 name: 🔐 Gitleaks Secret Scan + DefectDojo Upload
 
 on:
-  push:
-    branches: ['**']
+
   pull_request:
+    types: [opened, closed, synchronize]  # Explicit PR events
     branches: ['**']
+
   workflow_dispatch:
 
 jobs:
@@ -28,4 +29,4 @@ jobs:
           product-name: DevSecOps
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
-          branch-name: ${{ github.ref_name }}
+          branch-name: ${{ github.head_ref || github.ref_name }}
