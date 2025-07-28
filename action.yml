@@ -47,18 +47,25 @@ runs:
             --exit-code 1 || true
       shell: bash
 
-    - name: 📤 Upload Gitleaks report to DefectDojo
+    - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
       run: |
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
-
-        REPO_NAME=$(basename "${{ inputs.repo-name }}")
-        TEST_TITLE="${{ inputs.branch-name }}"
-
-        "${{ github.action_path }}/upload_to_defectdojo.sh" \
-          "${{ inputs.dojo-url }}" \
-          "${{ inputs.dojo-api-key }}" \
-          "${{ inputs.product-name }}" \
-          "${{ inputs.report-file }}" \
-          "$REPO_NAME" \
-          "$TEST_TITLE"
+    
+        if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
+          echo "🔍 Findings found, uploading to DefectDojo..."
+    
+          REPO_NAME=$(basename "${{ inputs.repo-name }}")
+          TEST_TITLE="${{ inputs.branch-name }}"
+    
+          "${{ github.action_path }}/upload_to_defectdojo.sh" \
+            "${{ inputs.dojo-url }}" \
+            "${{ inputs.dojo-api-key }}" \
+            "${{ inputs.product-name }}" \
+            "${{ inputs.report-file }}" \
+            "$REPO_NAME" \
+            "$TEST_TITLE"
+        else
+          echo "✅ No findings found. Skipping upload to DefectDojo."
+        fi
       shell: bash
+
