@@ -45,8 +45,8 @@ runs:
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
           detect \
-            --no-git \
-            --patch-file=pr.diff \
+            --source=pr.diff \
+            --is-diff \
             --verbose \
             --report-format=json \
             --report-path=${{ inputs.report-file }} \
