@@ -32,26 +32,22 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: 🕵️ Generate PR diff and get changed files
-      run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff origin/${{ github.base_ref }}...HEAD --unified=0 > pr.diff
-        grep '^+++' pr.diff | awk '{print $2}' | sed 's|^b/||' | sort -u > changed-files.txt
-      shell: bash
-
-    - name: 🕵️ Run Gitleaks scan
+    - name: 🕵️ Run Gitleaks scan (diff only)
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
-          detect \
-            --source=/app \
-            --log-opts="-p" \
-            --report-format=json \
-            --report-path=${{ inputs.report-file }} \
-            --exit-code 1 || true
+          bash -c "\
+            git config --global --add safe.directory /app && \
+            gitleaks detect \
+              --source=/app \
+              --log-opts='-p' \
+              --report-format=json \
+              --report-path=${{ inputs.report-file }} \
+              --exit-code 1 || true"
       shell: bash
+
 
     - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
       run: |
