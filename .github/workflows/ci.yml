@@ -2,7 +2,13 @@ name: 🔐 Gitleaks Secret Scan + DefectDojo Upload
 
 on:
   pull_request:
-    types: [opened, synchronize, reopened]
+    types:
+      - opened
+      - synchronize
+      - closed
+      - labeled
+      - ready_for_review
+      - reopened
 
   workflow_dispatch:
 
