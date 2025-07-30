@@ -48,6 +48,15 @@ runs:
                 --exit-code 1 || true"
       shell: bash
 
+    - name: 🔍 Debug report structure
+      run: |
+        echo "📄 Raw report:"
+        cat "${{ inputs.report-file }}"
+        echo ""
+        echo "📊 Parsed JSON (pretty):"
+        jq '.' "${{ inputs.report-file }}"
+
+
     - name: 📝 Print Gitleaks summary (outside container)
       run: |
         if [ -s "${{ inputs.report-file }}" ]; then
