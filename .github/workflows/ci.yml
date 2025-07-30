@@ -22,7 +22,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔍 Secret Scan & Upload
-        uses: PoorneshORG/gitleaks-scan@dojoaction
+        uses: PoorneshORG/gitleaks-scan@pr-diff-action
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
