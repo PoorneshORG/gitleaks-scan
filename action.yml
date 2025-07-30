@@ -1,5 +1,5 @@
 name: SecretScan and Upload
-description: Runs Gitleaks scan with custom rules and uploads results to DefectDojo
+description: Runs Gitleaks scan on PR diffs with custom rules and uploads results to DefectDojo
 
 inputs:
   token:
@@ -32,15 +32,21 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: 🕵️ Run Gitleaks scan
+    - name: 🕵️ Generate PR diff patch
+      run: |
+        git fetch origin ${{ github.base_ref }}
+        git diff origin/${{ github.base_ref }}...HEAD > pr.diff
+      shell: bash
+
+    - name: 🕵️ Run Gitleaks scan on PR diff
       run: |
         docker run --rm \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
           detect \
-            --source=/app \
             --no-git \
+            --patch-file=pr.diff \
             --verbose \
             --report-format=json \
             --report-path=${{ inputs.report-file }} \
@@ -68,4 +74,3 @@ runs:
           echo "✅ No findings found. Skipping upload to DefectDojo."
         fi
       shell: bash
-
