@@ -34,8 +34,8 @@ runs:
 
     - name: 🕵️ Generate PR diff patch
       run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff origin/${{ github.base_ref }}...HEAD > pr.diff
+        git diff origin/${{ github.base_ref }}...HEAD --unified=0 > pr.diff
+        grep '^+++' pr.diff | awk '{print $2}' | sed 's|^b/||' | sort -u > changed-files.txt
       shell: bash
 
     - name: 🕵️ Run Gitleaks scan on PR diff
@@ -45,11 +45,11 @@ runs:
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
           detect \
-            --source=pr.diff \
-            --is-diff \
-            --verbose \
+            --source "$file" \
+            --no-git \
             --report-format=json \
-            --report-path=${{ inputs.report-file }} \
+            --report-path=report.json \
+            --verbose
             --exit-code 1 || true
       shell: bash
 
