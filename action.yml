@@ -61,7 +61,7 @@ runs:
       run: |
         if [ -s "${{ inputs.report-file }}" ]; then
           echo "🛑 Secrets detected:"
-          jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🔑 Secret: \(.Secret)\n"' "${{ inputs.report-file }}"
+          jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
         else
           echo "✅ No secrets found."
         fi
