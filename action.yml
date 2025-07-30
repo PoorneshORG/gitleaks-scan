@@ -52,12 +52,11 @@ runs:
       run: |
         if [ -s "${{ inputs.report-file }}" ]; then
           echo "🛑 Secrets detected:"
-          jq -r '.[] | "\(.file):\(.line) [\(.rule)] - \(.description // "No description")"' "${{ inputs.report-file }}"
+          jq -r '.leaks[] | "\(.file):\(.line) [\(.rule)] - \(.description // "No description")"' "${{ inputs.report-file }}"
         else
           echo "✅ No secrets found."
         fi
       shell: bash
-
 
     - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
       run: |
