@@ -55,6 +55,7 @@ runs:
         echo ""
         echo "📊 Parsed JSON (pretty):"
         jq '.' "${{ inputs.report-file }}"
+      shell: bash
 
 
     - name: 📝 Print Gitleaks summary (outside container)
