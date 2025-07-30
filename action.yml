@@ -39,26 +39,18 @@ runs:
         grep '^+++' pr.diff | awk '{print $2}' | sed 's|^b/||' | sort -u > changed-files.txt
       shell: bash
 
-    - name: 🕵️ Run Gitleaks scan on changed files
+    - name: 🕵️ Run Gitleaks scan
       run: |
-        while read file; do
-          echo "🔍 Scanning $file..."
-          if [[ -f "$file" ]]; then
-            docker run --rm \
-              -v "$GITHUB_WORKSPACE:/app" \
-              -w /app \
-              ghcr.io/poorneshorg/gitleaks:latest \
-              detect \
-                --source="$file" \
-                --no-git \
-                --report-format=json \
-                --report-path=report.json \
-                --verbose \
-                --exit-code 1 || true
-          else
-            echo "⚠️ Skipped $file (not a regular file)"
-          fi
-        done < changed-files.txt
+        docker run --rm \
+          -v "$GITHUB_WORKSPACE:/app" \
+          -w /app \
+          ghcr.io/poorneshorg/gitleaks:latest \
+          detect \
+            --source=/app \
+            --log-opts="-p" \
+            --report-format=json \
+            --report-path=${{ inputs.report-file }} \
+            --exit-code 1 || true
       shell: bash
 
     - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
