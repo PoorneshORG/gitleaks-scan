@@ -32,26 +32,8 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    # - name: 🕵️ Run Gitleaks scan (diff only)
-    #   run: |
-    #     docker run --rm \
-    #       --entrypoint sh \
-    #       -v "$GITHUB_WORKSPACE:/app" \
-    #       -w /app \
-    #       ghcr.io/poorneshorg/gitleaks:latest \
-    #       -c "git config --global --add safe.directory /app && \
-    #           gitleaks detect \
-    #             --source=/app \
-    #             --log-opts='origin/${{ github.base_ref }}..HEAD' \
-    #             --report-format=json \
-    #             --report-path=${{ inputs.report-file }} \
-    #             --exit-code 1 || true"
-    #   shell: bash
-
     - name: 🕵️ Run Gitleaks scan (diff only)
       run: |
-        git fetch origin ${{ github.base_ref }}
-    
         docker run --rm \
           --entrypoint sh \
           -v "$GITHUB_WORKSPACE:/app" \
@@ -63,13 +45,17 @@ runs:
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 --report-path=${{ inputs.report-file }} \
-                --exit-code 1 || true && \
-              if [ -s '${{ inputs.report-file }}' ]; then \
-                echo '\n🛑 Secrets detected:'; \
-                jq -r '.[] | \"\(.file):\(.line) [\(.rule)] - \(.description // \"No description\")\"' '${{ inputs.report-file }}'; \
-              else \
-                echo '✅ No secrets found.'; \
-              fi"
+                --exit-code 1 || true"
+      shell: bash
+
+    - name: 📝 Print Gitleaks summary (outside container)
+      run: |
+        if [ -s "${{ inputs.report-file }}" ]; then
+          echo "🛑 Secrets detected:"
+          jq -r '.[] | "\(.file):\(.line) [\(.rule)] - \(.description // "No description")"' "${{ inputs.report-file }}"
+        else
+          echo "✅ No secrets found."
+        fi
       shell: bash
 
 
