@@ -42,7 +42,7 @@ runs:
           -c "git config --global --add safe.directory /app && \
               gitleaks detect \
                 --source=/app \
-                --log-opts='-p' \
+                --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 --report-path=${{ inputs.report-file }} \
                 --exit-code 1 || true"
