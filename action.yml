@@ -35,19 +35,18 @@ runs:
     - name: 🕵️ Run Gitleaks scan (diff only)
       run: |
         docker run --rm \
+          --entrypoint bash \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
-          bash -c "\
-            git config --global --add safe.directory /app && \
-            gitleaks detect \
-              --source=/app \
-              --log-opts='-p' \
-              --report-format=json \
-              --report-path=${{ inputs.report-file }} \
-              --exit-code 1 || true"
+          -c "git config --global --add safe.directory /app && \
+              gitleaks detect \
+                --source=/app \
+                --log-opts='-p' \
+                --report-format=json \
+                --report-path=${{ inputs.report-file }} \
+                --exit-code 1 || true"
       shell: bash
-
 
     - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
       run: |
