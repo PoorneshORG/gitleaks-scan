@@ -19,6 +19,7 @@ if [ ! -f "$SCAN_FILE" ]; then
 fi
 
 DATE=$(date +%F)
+END_DATE=$(date -d '+7300 days' +%F)  # 20 years later
 AUTH_HEADER="Authorization: Token $DOJO_API_KEY"
 JSON_HEADER="Content-Type: application/json"
 
@@ -46,7 +47,7 @@ if [ -z "$ENGAGEMENT_ID" ] || [ "$ENGAGEMENT_ID" == "null" ]; then
       \"product\": $PRODUCT_ID,
       \"name\": \"$ENGAGEMENT_NAME\",
       \"target_start\": \"$DATE\",
-      \"target_end\": \"$DATE\",
+      \"target_end\": \"$END_DATE\",
       \"status\": \"In Progress\",
       \"engagement_type\": \"CI/CD\"
     }" | jq -r '.id')
