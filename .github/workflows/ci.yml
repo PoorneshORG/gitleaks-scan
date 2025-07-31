@@ -40,3 +40,5 @@ jobs:
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
+
+# a3-credential = "A3-ABCDEF-ABCDEFGHIJK-ABCDE-FGHIJ-KLMNO"
