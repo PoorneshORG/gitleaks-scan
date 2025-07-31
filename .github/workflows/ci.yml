@@ -17,6 +17,9 @@ jobs:
     name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
 
+    # ✅ Skip the job if PR is closed and merged
+    if: github.event_name != 'pull_request' || github.event.action != 'closed' || github.event.pull_request.merged == false
+
     steps:
       - name: 🧾 Checkout code
         uses: actions/checkout@v4
