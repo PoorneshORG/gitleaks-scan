@@ -73,7 +73,8 @@ curl -s -X POST "$DOJO_URL/api/v2/reimport-scan/" \
   -F "auto_create_context=true" \
   -F "deduplication_on_engagement=true" \
   -F "close_old_findings=true" \
-  -F "engagement_end_date=$(date -d '+365 days' +%F)" \
+  # -F "engagement_end_date=$(date -d '+365 days' +%F)" \
+  -F "engagement_end_date=$(date -d '+5475 days' +%F)" \
   -F "file=@$SCAN_FILE"
 
 echo "✅ Scan uploaded to engagement '$ENGAGEMENT_NAME' with test title '$TEST_TITLE'"
