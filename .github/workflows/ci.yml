@@ -1,4 +1,4 @@
-name: 🔐 Gitleaks Secret Scan + DefectDojo Upload
+name: abc123
 
 on:
   push:
