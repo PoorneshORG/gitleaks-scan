@@ -48,24 +48,25 @@ runs:
                 --exit-code 1 || true"
       shell: bash
 
-    # - name: 🔍 Debug report structure
+    # - name: 📝 Print Gitleaks summary (outside container)
     #   run: |
-    #     echo "📄 Raw report:"
-    #     cat "${{ inputs.report-file }}"
-    #     echo ""
-    #     echo "📊 Parsed JSON (pretty):"
-    #     jq '.' "${{ inputs.report-file }}"
+    #     if [ -s "${{ inputs.report-file }}" ]; then
+    #       echo "🛑 Secrets detected:"
+    #       jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
+    #     else
+    #       echo "✅ No secrets found."
+    #     fi
     #   shell: bash
-
     - name: 📝 Print Gitleaks summary (outside container)
       run: |
-        if [ -s "${{ inputs.report-file }}" ]; then
+        if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
           echo "🛑 Secrets detected:"
           jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
         else
           echo "✅ No secrets found."
         fi
       shell: bash
+
 
     - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
       run: |
