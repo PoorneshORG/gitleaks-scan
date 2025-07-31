@@ -1,0 +1,41 @@
+name: 🔐 Gitleaks Secret Scan + DefectDojo Upload
+
+on:
+  push:
+    branches: ["**"]         # Trigger on push to any branch
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - closed
+      - labeled
+      - ready_for_review
+      - reopened
+
+  workflow_dispatch:
+
+jobs:
+  secret-scan:
+    name: 🔐 Gitleaks + DefectDojo Upload
+    runs-on: ubuntu-latest
+
+    # Skip job if event is a closed & merged PR (to avoid scanning on merge commits)
+    if: github.event_name != 'pull_request' || github.event.pull_request.merged == false
+
+    steps:
+      - name: 🧾 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Required for full diff during PR scanning
+
+      - name: 🔍 Secret Scan & Upload
+        uses: PoorneshORG/gitleaks-scan@pr-diff-action
+        continue-on-error: true
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          dojo-url: ${{ secrets.DEFECTDOJO_URL }}
+          dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
+          product-name: DevSecOps
+          report-file: gitleaks-report.json
+          repo-name: ${{ github.repository }}
+          branch-name: ${{ github.head_ref || github.ref_name }}
