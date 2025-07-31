@@ -59,27 +59,24 @@ runs:
       shell: bash
 
 
-    - name: 📤 Upload Gitleaks report to DefectDojo (if findings exist)
-      run: |
-        chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
-    
-        if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
-          echo "🔍 Findings found, uploading to DefectDojo..."
-        else
-          echo "✅ No findings found. Still uploading to DefectDojo to close old findings if any..."
-        fi
-    
-          REPO_NAME=$(basename "${{ inputs.repo-name }}")
-          TEST_TITLE="${{ inputs.branch-name }}"
-    
-          "${{ github.action_path }}/upload_to_defectdojo.sh" \
-            "${{ inputs.dojo-url }}" \
-            "${{ inputs.dojo-api-key }}" \
-            "${{ inputs.product-name }}" \
-            "${{ inputs.report-file }}" \
-            "$REPO_NAME" \
-            "$TEST_TITLE"
-        else
-          echo "✅ No findings found. Skipping upload to DefectDojo."
-        fi
-      shell: bash
+- name: 📤 Upload Gitleaks report to DefectDojo
+  run: |
+    chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
+
+    REPO_NAME=$(basename "${{ inputs.repo-name }}")
+    TEST_TITLE="${{ inputs.branch-name }}"
+
+    if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
+      echo "🔍 Findings found, uploading to DefectDojo..."
+    else
+      echo "✅ No findings found. Still uploading to DefectDojo to close old findings if any..."
+    fi
+
+    "${{ github.action_path }}/upload_to_defectdojo.sh" \
+      "${{ inputs.dojo-url }}" \
+      "${{ inputs.dojo-api-key }}" \
+      "${{ inputs.product-name }}" \
+      "${{ inputs.report-file }}" \
+      "$REPO_NAME" \
+      "$TEST_TITLE"
+  shell: bash
