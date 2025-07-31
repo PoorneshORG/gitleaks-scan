@@ -65,6 +65,9 @@ runs:
     
         if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
           echo "🔍 Findings found, uploading to DefectDojo..."
+        else
+          echo "✅ No findings found. Still uploading to DefectDojo to close old findings if any..."
+        fi
     
           REPO_NAME=$(basename "${{ inputs.repo-name }}")
           TEST_TITLE="${{ inputs.branch-name }}"
