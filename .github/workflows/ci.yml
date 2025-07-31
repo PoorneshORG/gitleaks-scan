@@ -1,16 +1,10 @@
 name: abc123
 
 on:
-  push:
-    branches: ["**"]         # Trigger on push to any branch
+
   pull_request:
-    types:
-      - opened
-      - synchronize
-      - closed
-      - labeled
-      - ready_for_review
-      - reopened
+    types: [opened, closed, synchronize]  # Explicit PR events
+    branches: ['**']
 
   workflow_dispatch:
 
@@ -19,17 +13,14 @@ jobs:
     name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
 
-    # Skip job if event is a closed & merged PR (to avoid scanning on merge commits)
-    if: github.event_name != 'pull_request' || github.event.pull_request.merged == false
-
     steps:
       - name: 🧾 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # Required for full diff during PR scanning
+          fetch-depth: 0
 
       - name: 🔍 Secret Scan & Upload
-        uses: PoorneshORG/gitleaks-scan@pr-diff-action
+        uses: PoorneshORG/gitleaks-scan@dojoaction
         continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
