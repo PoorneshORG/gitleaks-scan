@@ -38,6 +38,16 @@ jobs:
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
 
+      # 🚨 Explicitly fail if secrets were found
+      # - name: Fail if secrets detected
+      #   if: always() # run even if previous failed
+      #   run: |
+      #     if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
+      #       echo "🛑 Secrets detected → failing pipeline after upload to DefectDojo."
+      #       exit 1
+      #     else
+      #       echo "✅ No secrets detected → pipeline passes."
+      #     fi
 
       # - name: 💬 Comment on PR with Secret Scan Result
       #   if: ${{ github.event_name == 'pull_request' }}
