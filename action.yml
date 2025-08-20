@@ -84,6 +84,16 @@ runs:
           "$TEST_TITLE"
       shell: bash
 
+      # 🚨 Explicitly fail if secrets were found
+      - name: Fail if secrets detected
+        if: always() # run even if previous failed
+        run: |
+          if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
+            echo "🛑 Secrets detected → failing pipeline after upload to DefectDojo."
+            exit 1
+          else
+            echo "✅ No secrets detected → pipeline passes."
+          fi
     # - name: 📤 Upload Gitleaks report to DefectDojo
     #   run: |
     #     chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
