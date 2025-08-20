@@ -97,13 +97,13 @@ runs:
 
             if (findings.length > 0) {
               body = `
-🛑 **Secret Scan Alert**
+🛑 **Secret Scan Alert** 🛑
 
 Secrets were detected in this pull request.
 
 - Please check the workflow logs for details.
 - Findings have been uploaded to DefectDojo for tracking.
-- For immediate remediation, follow the [DeveloperWS Secret Handling Guide](https://your.internal.docs/developerws).
+- For immediate remediation, follow the Developers Secret Handling Guide(https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).
 `;
             } else {
               body = '✅ No secrets found in this PR.';
