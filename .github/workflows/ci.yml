@@ -5,7 +5,6 @@ on:
     types:
       - opened
       - synchronize
-      - closed
       - labeled
       - ready_for_review
       - reopened
@@ -18,7 +17,7 @@ jobs:
     runs-on: ubuntu-latest
 
     # ✅ Skip the job if PR is closed and merged
-    if: github.event_name != 'pull_request' || github.event.action != 'closed' || github.event.pull_request.merged == false
+    if: github.event.pull_request.state == 'open'
 
     steps:
       - name: 🧾 Checkout code
