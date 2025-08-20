@@ -1,44 +1,48 @@
 name: SecretScan and Upload
-description: Runs Gitleaks scan on PR diffs with custom rules and uploads results to DefectDojo
+description: Runs Gitleaks scan on PR diffs and uploads results to DefectDojo
 
 inputs:
   token:
-    description: "GitHub token with read:packages access"
+    description: GitHub token with read:packages access
     required: true
   dojo-url:
-    description: "DefectDojo instance URL"
+    description: DefectDojo instance URL
     required: true
   dojo-api-key:
-    description: "API key for DefectDojo"
+    description: API key for DefectDojo
     required: true
   product-name:
-    description: "DefectDojo product name"
+    description: DefectDojo product name
     required: true
   report-file:
-    description: "Path to Gitleaks JSON output"
+    description: Path to Gitleaks JSON output
     required: false
     default: gitleaks-report.json
   repo-name:
-    description: "Repository name"
+    description: Repository name
     required: true
   branch-name:
-    description: "Branch name (used as test title)"
+    description: Branch name (used as test title)
     required: true
 
 runs:
-  using: "composite"
+  using: composite
   steps:
-    - name: 🔐 Login to GitHub Container Registry
+    - name: Login to GHCR
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: 🕵️ Run Gitleaks scan (diff only)
+    - name: Fetch full history
+      run: git fetch --unshallow || echo "Repo is already fully cloned"
+      shell: bash
+
+    - name: Run Gitleaks
       run: |
         docker run --rm \
           --entrypoint sh \
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
-          ghcr.io/poorneshorg/gitleaks:latest \
+          ghcr.io/adaptavant/gitleaks:multiarch-1.0 \
           -c "git config --global --add safe.directory /app && \
               gitleaks detect \
                 --source=/app \
@@ -57,7 +61,6 @@ runs:
           echo "✅ No secrets found."
         fi
       shell: bash
-
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
@@ -80,3 +83,124 @@ runs:
           "$REPO_NAME" \
           "$TEST_TITLE"
       shell: bash
+
+    - name: 💬 Comment on PR with Secret Scan Result
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          let body = '';
+
+          try {
+            const findings = JSON.parse(fs.readFileSync('${{ inputs.report-file }}', 'utf8'));
+
+            if (findings.length > 0) {
+              body = `
+🛑 **Secret Scan Alert**
+
+Secrets were detected in this pull request.
+
+- Please check the workflow logs for details.
+- Findings have been uploaded to DefectDojo for tracking.
+- For immediate remediation, follow the [DeveloperWS Secret Handling Guide](https://your.internal.docs/developerws).
+`;
+            } else {
+              body = '✅ No secrets found in this PR.';
+            }
+          } catch (e) {
+            body = '⚠️ Secret scan did not produce a valid report.';
+          }
+
+          await github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body
+          })
+
+
+# Original and correct one
+
+# name: SecretScan and Upload
+# description: Runs Gitleaks scan on PR diffs with custom rules and uploads results to DefectDojo
+
+# inputs:
+#   token:
+#     description: "GitHub token with read:packages access"
+#     required: true
+#   dojo-url:
+#     description: "DefectDojo instance URL"
+#     required: true
+#   dojo-api-key:
+#     description: "API key for DefectDojo"
+#     required: true
+#   product-name:
+#     description: "DefectDojo product name"
+#     required: true
+#   report-file:
+#     description: "Path to Gitleaks JSON output"
+#     required: false
+#     default: gitleaks-report.json
+#   repo-name:
+#     description: "Repository name"
+#     required: true
+#   branch-name:
+#     description: "Branch name (used as test title)"
+#     required: true
+
+# runs:
+#   using: "composite"
+#   steps:
+#     - name: 🔐 Login to GitHub Container Registry
+#       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+#       shell: bash
+
+#     - name: 🕵️ Run Gitleaks scan (diff only)
+#       run: |
+#         docker run --rm \
+#           --entrypoint sh \
+#           -v "$GITHUB_WORKSPACE:/app" \
+#           -w /app \
+#           ghcr.io/poorneshorg/gitleaks:latest \
+#           -c "git config --global --add safe.directory /app && \
+#               gitleaks detect \
+#                 --source=/app \
+#                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
+#                 --report-format=json \
+#                 --report-path=${{ inputs.report-file }} \
+#                 --exit-code 1 || true"
+#       shell: bash
+
+#     - name: 📝 Print Gitleaks summary (outside container)
+#       run: |
+#         if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
+#           echo "🛑 Secrets detected:"
+#           jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
+#         else
+#           echo "✅ No secrets found."
+#         fi
+#       shell: bash
+
+
+#     - name: 📤 Upload Gitleaks report to DefectDojo
+#       run: |
+#         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
+    
+#         REPO_NAME=$(basename "${{ inputs.repo-name }}")
+#         TEST_TITLE="${{ inputs.branch-name }}"
+    
+#         if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
+#           echo "🔍 Findings found, uploading to DefectDojo..."
+#         else
+#           echo "✅ No findings found. Still uploading to DefectDojo to close old findings if any..."
+#         fi
+    
+#         "${{ github.action_path }}/upload_to_defectdojo.sh" \
+#           "${{ inputs.dojo-url }}" \
+#           "${{ inputs.dojo-api-key }}" \
+#           "${{ inputs.product-name }}" \
+#           "${{ inputs.report-file }}" \
+#           "$REPO_NAME" \
+#           "$TEST_TITLE"
+#       shell: bash
