@@ -39,7 +39,7 @@ JSON_HEADER="Content-Type: application/json"
 # -------------------------
 # Step 1: Check if secrets are present in scan
 # -------------------------
-SECRETS_FOUND=$(jq '.[] | select(.Rule != null)' "$SCAN_FILE" | wc -l)
+SECRETS_FOUND=$(jq '[.[] | select(.Rule != null or .RuleID != null)] | length' "$SCAN_FILE")
 
 # -------------------------
 # Step 2: Find Product ID in DefectDojo
