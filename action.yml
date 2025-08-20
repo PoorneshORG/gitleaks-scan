@@ -94,6 +94,8 @@ runs:
         else
           echo "✅ No secrets detected → pipeline passes."
         fi
+      shell: bash
+      
     # - name: 📤 Upload Gitleaks report to DefectDojo
     #   run: |
     #     chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
