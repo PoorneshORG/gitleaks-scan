@@ -68,12 +68,12 @@ runs:
         REPO_NAME=$(basename "${{ inputs.repo-name }}")
         TEST_TITLE="${{ inputs.branch-name }}"
 
-        # Check if scan has any findings
-        if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
-          echo "🔍 Findings present → will create/update in DefectDojo."
-        else
-          echo "ℹ️ No findings in report → script will decide whether to skip or update existing engagement/test."
-        fi
+        # # Check if scan has any findings
+        # if jq -e '.[]?' "${{ inputs.report-file }}" > /dev/null; then
+        #   echo "🔍 Findings present → will create/update in DefectDojo."
+        # else
+        #   echo "ℹ️ No findings in report → script will decide whether to skip or update existing engagement/test."
+        # fi
     
         "${{ github.action_path }}/upload_to_defectdojo.sh" \
           "${{ inputs.dojo-url }}" \
