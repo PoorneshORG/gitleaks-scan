@@ -85,7 +85,7 @@ runs:
       shell: bash
 
     - name: 💬 Comment on PR with Secret Scan Result
-      if: github.event_name == 'pull_request'
+      # if: github.event_name == 'pull_request'
       uses: actions/github-script@v7
       with:
         script: |
