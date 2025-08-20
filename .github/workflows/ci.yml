@@ -38,36 +38,37 @@ jobs:
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
 
-      - name: 💬 Comment on PR with Secret Scan Result
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            let body = '';
 
-            try {
-              const findings = JSON.parse(fs.readFileSync('gitleaks-report.json', 'utf8'));
-              if (findings.length > 0) {
-                body = `
-🛑 **Secret Scan Alert**
+      # - name: 💬 Comment on PR with Secret Scan Result
+      #   if: ${{ github.event_name == 'pull_request' }}
+      #   uses: actions/github-script@v7
+      #   with:
+      #     script: |
+      #       const fs = require('fs');
+      #       let body = '';
 
-Secrets were detected in this pull request.
+      #       try {
+      #         const findings = JSON.parse(fs.readFileSync('gitleaks-report.json', 'utf8'));
+      #         if (Array.isArray(findings) && findings.length > 0) {
+      #           body = [
+      #             '🛑 **Secret Scan Alert**',
+      #             '',
+      #             'Secrets were detected in this pull request.',
+      #             '',
+      #             '- Please check the workflow logs for details.',
+      #             '- Findings have been uploaded to DefectDojo for tracking.',
+      #             '- For immediate remediation, follow the [Developers Secret Handling Guide](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).'
+      #           ].join('\n');
+      #         } else {
+      #           body = '✅ No secrets found in this PR.';
+      #         }
+      #       } catch (e) {
+      #         body = '⚠️ Secret scan did not produce a valid report.';
+      #       }
 
-- Please check the workflow logs for details.
-- Findings have been uploaded to DefectDojo for tracking.
-- For immediate remediation, follow the [Developers Secret Handling Guide](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).
-`;
-              } else {
-                body = '✅ No secrets found in this PR.';
-              }
-            } catch (e) {
-              body = '⚠️ Secret scan did not produce a valid report.';
-            }
-
-            await github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body
-            })
+      #       await github.rest.issues.createComment({
+      #         issue_number: context.issue.number,
+      #         owner: context.repo.owner,
+      #         repo: context.repo.repo,
+      #         body
+      #       });
