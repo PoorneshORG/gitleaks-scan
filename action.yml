@@ -52,17 +52,17 @@ runs:
                 --exit-code 1 || true"
       shell: bash
 
-    - name: 📝 Print Gitleaks summary (outside container)
+    - name: Print Gitleaks summary (outside container)
       run: |
         if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
           echo "🛑 Secrets detected:"
-          jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
+          jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // \"No description\")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
         else
           echo "✅ No secrets found."
         fi
       shell: bash
 
-    - name: 📤 Upload Gitleaks report to DefectDojo
+    - name: Upload Gitleaks report to DefectDojo
       run: |
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
     
@@ -84,8 +84,7 @@ runs:
           "$TEST_TITLE"
       shell: bash
 
-    - name: 💬 Comment on PR with Secret Scan Result
-      # if: github.event_name == 'pull_request'
+    - name: Comment on PR with Secret Scan Result
       uses: actions/github-script@v7
       with:
         script: |
@@ -94,16 +93,15 @@ runs:
 
           try {
             const findings = JSON.parse(fs.readFileSync('${{ inputs.report-file }}', 'utf8'));
-
             if (findings.length > 0) {
               body = `
-🛑 **Secret Scan Alert** 🛑
+🛑 Secret Scan Alert 🛑
 
 Secrets were detected in this pull request.
 
 - Please check the workflow logs for details.
 - Findings have been uploaded to DefectDojo for tracking.
-- For immediate remediation, follow the Developers Secret Handling Guide(https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).
+- For immediate remediation, follow the [Developers Secret Handling Guide](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).
 `;
             } else {
               body = '✅ No secrets found in this PR.';
