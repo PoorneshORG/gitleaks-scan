@@ -15,9 +15,10 @@ jobs:
   secret-scan:
     name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
+    permissions: write-all
 
-    # ✅ Skip the job if PR is closed and merged
-    if: github.event.pull_request.state == 'open'
+    # ✅ Skip the job if PR is closed and merged 
+    if: ${{ github.event.pull_request.state == 'open' }}
 
     steps:
       - name: 🧾 Checkout code
@@ -26,6 +27,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🔍 Secret Scan & Upload
+        id: scan
         uses: PoorneshORG/gitleaks-scan@pr-diff-action
         continue-on-error: true
         with:
