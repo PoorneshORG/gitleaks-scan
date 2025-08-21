@@ -45,7 +45,8 @@ runs:
                 --source=/app \
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
-                --report-path=${{ inputs.report-file }} \
+                # --report-path=${{ inputs.report-file }} \
+                --report-path="${GITHUB_WORKSPACE}/${{ inputs.report-file }}"
                 --exit-code 1 || true"
       shell: bash
 
