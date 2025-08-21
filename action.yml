@@ -90,12 +90,11 @@ runs:
                 issue_number: context.payload.pull_request.number,
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                body: `🛑 **Secret Scan Alert**
+                body: "🛑 **Secret Scan Alert**\n\n" +
+      "One or more potential secrets were detected in this pull request.\n" +
+      "Please check the workflow logs for details.\n\n" +
+      "👉 Follow the remediation steps in the [Developer Guide](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation)."
 
-One or more potential secrets were detected in this pull request. 
-Please check the workflow logs for details.
-
-👉 Follow the remediation steps in the [Developer Guide for Secret Scanning Remediation](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation).`
               });
             }
           } catch (e) {
