@@ -33,7 +33,7 @@ jobs:
         uses: PoorneshORG/gitleaks-scan@pr-diff-action
         continue-on-error: true
         with:
-          token: ${{ secrets.ghcr-adaptavant }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
           product-name: DevSecOps
