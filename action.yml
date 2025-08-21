@@ -1,4 +1,3 @@
-# Original and correct one
 name: SecretScan and Upload
 description: Runs Gitleaks scan on PR diffs with custom rules and uploads results to DefectDojo
 
@@ -45,8 +44,7 @@ runs:
                 --source=/app \
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
-                # --report-path=${{ inputs.report-file }} \
-                --report-path=/app/gitleaks-report.json \
+                --report-path=/app/${{ inputs.report-file }} \
                 --exit-code 1 || true"
       shell: bash
 
@@ -59,7 +57,6 @@ runs:
           echo "✅ No secrets found."
         fi
       shell: bash
-
 
     - name: 📤 Upload Gitleaks report to DefectDojo
       run: |
@@ -77,15 +74,37 @@ runs:
           "$TEST_TITLE"
       shell: bash
 
-      # 🚨 Explicitly fail if secrets were found
+    - name: 💬 Comment on PR if secrets detected
+      if: always() # still run even if Dojo upload fails
+      uses: actions/github-script@v7
+      with:
+        github-token: ${{ inputs.token }}
+        script: |
+          const fs = require('fs');
+          const path = process.env.GITHUB_WORKSPACE + '/${{ inputs.report-file }}';
+
+          try {
+            const findings = JSON.parse(fs.readFileSync(path, 'utf8'));
+            if (findings.length > 0 && context.payload.pull_request) {
+              await github.rest.issues.createComment({
+                issue_number: context.payload.pull_request.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'hello'
+              });
+            }
+          } catch (e) {
+            core.warning("Could not read report: " + path + " → " + e.message);
+          }
+
+    # 🚨 Explicitly fail if secrets were found
     - name: Fail if secrets detected
-      if: always() # run even if previous failed
+      if: always()
       run: |
         if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
-          echo "🛑 Secrets detected → failing pipeline after upload to DefectDojo."
+          echo "🛑 Secrets detected → failing pipeline after upload and PR comment."
           exit 1
         else
           echo "✅ No secrets detected → pipeline passes."
         fi
       shell: bash
-      
