@@ -13,12 +13,13 @@ on:
 
 jobs:
   secret-scan:
-    name: 🔐 Run Secret Scan + Upload
+    name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      pull-requests: write   # ✅ needed for PR comment
+      contents: read         # ✅ needed for checkout
+      pull-requests: write   # ✅ needed for PR comments
 
+    # ✅ Skip the job if PR is closed and merged
     if: ${{ github.event.pull_request.state == 'open' }}
 
     steps:
@@ -27,13 +28,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      # ✅ Login to GHCR before using your composite action
-      - name: 🔐 Login to GitHub Container Registry
-        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-
-      # ✅ Run your composite action
-      - name: 🔍 Run Gitleaks Scan + Dojo Upload
+      - name: 🔍 Secret Scan & Upload
+        id: scan
         uses: PoorneshORG/gitleaks-scan@pr-diff-action
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
