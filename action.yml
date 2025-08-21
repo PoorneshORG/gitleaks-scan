@@ -46,7 +46,7 @@ runs:
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 # --report-path=${{ inputs.report-file }} \
-                --report-path="${GITHUB_WORKSPACE}/${{ inputs.report-file }}"
+                --report-path=/app/gitleaks-report.json \
                 --exit-code 1 || true"
       shell: bash
 
