@@ -15,9 +15,7 @@ jobs:
   secret-scan:
     name: 🔐 Gitleaks + DefectDojo Upload
     runs-on: ubuntu-latest
-    permissions:
-      contents: read         # ✅ needed for checkout
-      pull-requests: write   # ✅ needed for PR comments
+    permissions: write-all
 
     # ✅ Skip the job if PR is closed and merged
     if: ${{ github.event.pull_request.state == 'open' }}
