@@ -13,13 +13,12 @@ on:
 
 jobs:
   secret-scan:
-    name: 🔐 Gitleaks + DefectDojo Upload
+    name: 🔐 Run Secret Scan + Upload
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      pull-requests: write   # ✅ allows commenting on PRs
+      pull-requests: write   # ✅ needed for PR comment
 
-    # ✅ Skip the job if PR is closed and merged
     if: ${{ github.event.pull_request.state == 'open' }}
 
     steps:
@@ -28,10 +27,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: 🔍 Secret Scan & Upload
-        id: scan
+      # ✅ Login to GHCR before using your composite action
+      - name: 🔐 Login to GitHub Container Registry
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # ✅ Run your composite action
+      - name: 🔍 Run Gitleaks Scan + Dojo Upload
         uses: PoorneshORG/gitleaks-scan@pr-diff-action
-        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
@@ -40,26 +42,3 @@ jobs:
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
-
-
-      # - name: 💬 Comment on PR if secrets are detected
-      #   if: github.event_name == 'pull_request'
-      #   uses: actions/github-script@v7
-      #   with:
-      #     script: |
-      #       const fs = require('fs');
-      #       const path = process.env.GITHUB_WORKSPACE + '/gitleaks-report.json';
-
-      #       try {
-      #         const findings = JSON.parse(fs.readFileSync(path, 'utf8'));
-      #         if (findings.length > 0) {
-      #           await github.rest.issues.createComment({
-      #             issue_number: context.issue.number,
-      #             owner: context.repo.owner,
-      #             repo: context.repo.repo,
-      #             body: 'hello'
-      #           });
-      #         }
-      #       } catch (e) {
-      #         core.warning("Could not read " + path + " → " + e.message);
-      #       }
