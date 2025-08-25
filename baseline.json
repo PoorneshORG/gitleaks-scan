@@ -1,10 +1,8 @@
 [
   {
-    "RuleID": "generic-api-key",
-    "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+    "Fingerprint": "748e241868d9f597cd7ec9f491590640fb927412:.env:generic-api-key:1",
     "File": ".env",
-    "StartLine": 1,
-    "Match": "os_token = \"ops_eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6Ikpvc\"",
-    "Fingerprint": "748e241868d9f597cd7ec9f491590640fb927412:.env:generic-api-key:1"
+    "RuleID": "generic-api-key",
+    "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations."
   }
 ]
