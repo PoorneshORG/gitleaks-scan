@@ -24,6 +24,10 @@ inputs:
   branch-name:
     description: "Branch name (used as test title)"
     required: true
+  baseline-file:
+    description: "Path to baseline JSON file"
+    required: false
+    default: ${{ github.action_path }}/baseline.json
 
 runs:
   using: "composite"
@@ -48,17 +52,42 @@ runs:
                 --exit-code 1 || true"
       shell: bash
 
-    - name: 📝 Print Gitleaks summary (outside container)
+    - name: 🔎 Filter new findings against baseline
+      id: baseline
+      shell: bash
       run: |
-        if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
-          echo "🛑 Secrets detected:"
-          jq -r '.[] | "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n  🧩 Match: \(.Match)\n"' "${{ inputs.report-file }}"
+        BASELINE="${{ inputs.baseline-file }}"
+        REPORT="${{ inputs.report-file }}"
+        FILTERED="gitleaks-new.json"
+
+        if [ ! -f "$BASELINE" ]; then
+          echo "⚠️ No baseline file found → treating all findings as new."
+          cp "$REPORT" "$FILTERED"
         else
-          echo "✅ No secrets found."
+          jq -r '.[].Fingerprint' "$BASELINE" | sort > baseline_fps.txt || true
+          jq -r '.[].Fingerprint' "$REPORT" | sort > current_fps.txt || true
+          comm -13 baseline_fps.txt current_fps.txt > new_fps.txt || true
+
+          jq --slurpfile new new_fps.txt '
+            map(select(.Fingerprint as $f | $new[0][] | contains($f)))
+          ' "$REPORT" > "$FILTERED"
         fi
+
+        NEW_COUNT=$(jq length "$FILTERED")
+        echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
+        echo "new_findings=$(cat $FILTERED | jq -c .)" >> $GITHUB_OUTPUT
+
+    - name: 📝 Print Gitleaks summary (new findings only)
+      if: steps.baseline.outputs.new_count != '0'
+      run: |
+        echo "🛑 New secrets detected:"
+        echo '${{ steps.baseline.outputs.new_findings }}' | jq -r '
+          .[] |
+          "📄 File: \(.File)\n🔢 Line: \(.StartLine)\n📝 Rule: [\(.RuleID)] - \(.Description // "No description")\n🧩 Match: \(.Match)\n🆔 Fingerprint: \(.Fingerprint)\n---"
+        '
       shell: bash
 
-    - name: 📤 Upload Gitleaks report to DefectDojo
+    - name: 📤 Upload full Gitleaks report to DefectDojo
       run: |
         chmod +x "${{ github.action_path }}/upload_to_defectdojo.sh"
     
@@ -74,36 +103,30 @@ runs:
           "$TEST_TITLE"
       shell: bash
 
-    - name: 💬 Comment on PR if secrets detected
-      if: always() # still run even if Dojo upload fails
+    - name: 💬 Comment on PR if new secrets detected
+      if: steps.baseline.outputs.new_count != '0' && always()
       uses: actions/github-script@v7
       with:
         github-token: ${{ inputs.token }}
         script: |
-          const fs = require('fs');
-          const path = process.env.GITHUB_WORKSPACE + '/${{ inputs.report-file }}';
-
-          try {
-            const findings = JSON.parse(fs.readFileSync(path, 'utf8'));
-            if (findings.length > 0 && context.payload.pull_request) {
-              await github.rest.issues.createComment({
-                issue_number: context.payload.pull_request.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: "🛑 **Secret Scan Alert**\n\nOur automated security scan has detected one or more potential secrets in this pull request.\n\n🔒 For your security and the security of the organization:\n- Please **do not share or expose secrets in source code**.\n- Review the scan findings in the workflow logs.\n- Rotate or revoke the exposed secret if necessary.\n\n👉 Follow the remediation steps outlined in the [Developer Guide for Secret Remediation](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation)."
-              });
-            }
-          } catch (e) {
-            core.warning("Could not read report: " + path + " → " + e.message);
+          const findings = JSON.parse(`${{ steps.baseline.outputs.new_findings }}`);
+          if (findings.length > 0 && context.payload.pull_request) {
+            await github.rest.issues.createComment({
+              issue_number: context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: "🛑 **Secret Scan Alert**\n\nOur automated security scan has detected *new* potential secrets in this pull request.\n\n🔒 For your security and the security of the organization:\n- Please **do not share or expose secrets in source code**.\n- Review the scan findings in the workflow logs.\n- Rotate or revoke the exposed secret if necessary.\n\n👉 Follow the remediation steps outlined in the [Developer Guide for Secret Remediation](https://anywhereworks.atlassian.net/wiki/spaces/DevOps/pages/886767643/Implementing+Secret+Scanning+in+CI#Developer-Guide%3A-Secret-Scanning-Workflow-%26-Remediation)."
+            });
           }
 
-    - name: 🚨 Fail if secrets detected
+    - name: ✅ Decide pipeline status
       if: always()
       run: |
-        if jq -e 'length > 0' "${{ inputs.report-file }}" > /dev/null 2>&1; then
-          echo "🛑 Secrets detected → failing pipeline after upload and PR comment."
+        if [ "${{ steps.baseline.outputs.new_count }}" -ne 0 ]; then
+          echo "🛑 New secrets introduced → failing pipeline after upload and PR comment."
           exit 1
         else
-          echo "✅ No secrets detected → pipeline passes."
+          echo "✅ No new secrets detected → pipeline passes."
         fi
       shell: bash
+      
