@@ -67,9 +67,13 @@ runs:
           jq -r '.[].Fingerprint' "$BASELINE" | sort > baseline_fps.txt || true
           jq -r '.[].Fingerprint' "$REPORT" | sort > current_fps.txt || true
           comm -13 baseline_fps.txt current_fps.txt > new_fps.txt || true
-
-          jq --slurpfile new new_fps.txt '
-            map(select(.Fingerprint as $f | $new[0][] | contains($f)))
+        
+          # Build JSON array of new fingerprints
+          jq -R -s 'split("\n")[:-1]' new_fps.txt > new_fps.json
+        
+          # Filter only new findings
+          jq --argjson newfps "$(cat new_fps.json)" '
+            map(select(.Fingerprint as $f | $newfps | index($f)))
           ' "$REPORT" > "$FILTERED"
         fi
 
