@@ -1,1 +1,3 @@
 GITHUB_TOKEN = sk_test_51H8gU0AnotherFakeSecret12345
+
+fake_TOKEN = sk_test_51H8gU0AnotherFakeSecret67890
