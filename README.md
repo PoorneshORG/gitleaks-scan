@@ -1,1 +1,1 @@
-dummy GITHUB_TOKEN=ghp_1234567890abcdefghijklmnopqrstuvwxYz
+GITHUB_TOKEN = sk_test_51H8gU0AnotherFakeSecret12345
