@@ -28,6 +28,12 @@
     "File": "README.md",
     "RuleID": "stripe-access-token",
     "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
+  },
+  {
+    "Fingerprint": "beb95dcde5792bc486192bd1b7ef1df5b9151cb6:.env:stripe-access-token:1",
+    "File": ".env",
+    "RuleID": "stripe-access-token",
+    "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
   }
 ]
 
