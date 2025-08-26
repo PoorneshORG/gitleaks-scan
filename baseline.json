@@ -4,9 +4,7 @@
     "File": ".env",
     "RuleID": "generic-api-key",
     "Description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations."
-  }
-]
-[
+  },
   {
     "Fingerprint": "85dc6005f3986d293a3200488dc7c6b5e4abeaf1:.env:stripe-access-token:1",
     "File": ".env",
