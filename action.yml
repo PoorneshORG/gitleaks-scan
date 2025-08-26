@@ -51,7 +51,7 @@ runs:
                 --report-path=/app/${{ inputs.report-file }} \
                 --exit-code 1 || true"
       shell: bash
-
+      
     - name: 🔎 Filter new findings against baseline
       id: baseline
       shell: bash
@@ -64,22 +64,15 @@ runs:
           echo "⚠️ No baseline file found → treating all findings as new."
           cp "$REPORT" "$FILTERED"
         else
-          jq -r '.[].Fingerprint' "$BASELINE" | sort > baseline_fps.txt || true
-          jq -r '.[].Fingerprint' "$REPORT" | sort > current_fps.txt || true
-          comm -13 baseline_fps.txt current_fps.txt > new_fps.txt || true
-        
-          # Build JSON array of new fingerprints
-          jq -R -s 'split("\n")[:-1]' new_fps.txt > new_fps.json
-        
-          # Filter only new findings
-          jq --argjson newfps "$(cat new_fps.json)" '
-            map(select(.Fingerprint as $f | $newfps | index($f)))
+          # Directly filter out any findings already in baseline
+          jq --argfile baseline "$BASELINE" '
+            [ .[] | select(.Fingerprint as $f | all($baseline[]; .Fingerprint != $f)) ]
           ' "$REPORT" > "$FILTERED"
         fi
 
         NEW_COUNT=$(jq length "$FILTERED")
         echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
-        echo "new_findings=$(cat $FILTERED | jq -c .)" >> $GITHUB_OUTPUT
+        echo "new_findings=$(cat "$FILTERED" | jq -c .)" >> $GITHUB_OUTPUT
 
     - name: 📝 Print Gitleaks summary (new findings only)
       if: steps.baseline.outputs.new_count != '0'
