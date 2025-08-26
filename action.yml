@@ -64,8 +64,9 @@ runs:
           echo "⚠️ No baseline file found → treating all findings as new."
           cp "$REPORT" "$FILTERED"
         else
-          # Directly filter out any findings already in baseline
-          jq --argfile baseline "$BASELINE" '
+          baseline_content=$(cat "$BASELINE")
+
+          jq --argjson baseline "$baseline_content" '
             [ .[] | select(.Fingerprint as $f | all($baseline[]; .Fingerprint != $f)) ]
           ' "$REPORT" > "$FILTERED"
         fi
