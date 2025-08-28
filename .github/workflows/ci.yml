@@ -37,4 +37,3 @@ jobs:
           report-file: gitleaks-report.json
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
-          baseline-file: ${{ github.action_path }}/baseline.json
