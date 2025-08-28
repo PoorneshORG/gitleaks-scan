@@ -56,7 +56,7 @@ runs:
       id: baseline
       shell: bash
       run: |
-        BASELINE="${GITHUB_ACTION_PATH}/baseline.json"
+        BASELINE="${{ inputs.baseline-file }}"
         REPORT="${{ inputs.report-file }}"
         FILTERED="gitleaks-new.json"
 
@@ -117,11 +117,11 @@ runs:
           "${{ inputs.dojo-url }}" \
           "${{ inputs.dojo-api-key }}" \
           "${{ inputs.product-name }}" \
-          "${{ inputs.report-file }}" \
+          "${{ inputs.baseline-file }}" \
           "$REPO_NAME" \
           "$TEST_TITLE"
       shell: bash
-
+## "${{ inputs.report-file }}" \
     - name: 💬 Comment on PR if new secrets detected
       if: steps.baseline.outputs.new_count != '0' && always()
       uses: actions/github-script@v7
