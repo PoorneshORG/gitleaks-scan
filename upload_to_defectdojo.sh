@@ -38,9 +38,9 @@ AUTH_HEADER="Authorization: Token $DOJO_API_KEY"
 JSON_HEADER="Content-Type: application/json"
 
 # -------------------------
-# Step 1: Check if secrets are present in scan
+# Step 1: Check if secrets are present in scan (robust against field variations)
 # -------------------------
-SECRETS_FOUND=$(jq '[.[] | select(.Rule != null)] | length' "$SCAN_FILE")
+SECRETS_FOUND=$(jq '[.[] | select(.Rule? != null or .rule? != null or .RuleID? != null)] | length' "$SCAN_FILE")
 
 # -------------------------
 # Step 2: Find Product ID
