@@ -75,26 +75,19 @@ runs:
         echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
         echo "new_findings=$(cat "$FILTERED" | jq -c .)" >> $GITHUB_OUTPUT
 
-        # 📝 Unified summary
-        if [ "$NEW_COUNT" -eq 0 ]; then
-          echo "✅ After comparing with baseline → No new secrets detected."
-        else
-          echo "🛑 After comparing with baseline → Found $NEW_COUNT new secret(s):"
-          jq -r '
-            .[] |
-            "📄 File: \(.File)\n" +
-            "🔢 Line: \(.StartLine // "N/A")\n" +
-            "📝 Rule: [\(.RuleID)] - \(.Description // "No description")\n" +
-            (
-              if .Line then
-                "🧩 Match: \(.Line)"
-              else
-                "🧩 Match: \(.Match)"
-              end
-            ) + "\n" +
-            "🆔 Fingerprint: \(.Fingerprint)\n---"
-          ' "$FILTERED"
-        fi
+      - name: 📝 Unified summary
+        run: |
+          if [ "${{ steps.baseline.outputs.new_count }}" -eq 0 ]; then
+            echo "✅ After comparing with baseline → No new secrets detected."
+          else
+            echo "🛑 After comparing with baseline → Found ${{ steps.baseline.outputs.new_count }} new secret(s):"
+            echo '${{ steps.baseline.outputs.new_findings }}' | jq -r '
+              .[] |
+              "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n" +
+              "  🧩 Match: " +
+              (if .Line then .Line else .Match end) + "\n"
+            '
+          fi
         
     #     # 📝 Log a summary for visibility
     #     if [ "$NEW_COUNT" -eq 0 ]; then
