@@ -91,7 +91,7 @@ runs:
             "📄 File: \(.File)\n" +
             "📝 Rule: \(.RuleID)\n" +
             "ℹ️  Description: \(.Description // "No description")\n" +
-            "  🧩 Match: \(.Match)\n---"
+            "  🧩 Match: \(.Line // .Match)\n---"
           '
         fi
       shell: bash
@@ -104,8 +104,11 @@ runs:
     #       echo "🛑 After comparing with baseline → Found ${{ steps.baseline.outputs.new_count }} new secret(s):"
     #       echo '${{ steps.baseline.outputs.new_findings }}' | jq -r '
     #         .[] |
-    #         "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n" +
-    #         "  🧩 Match: " + (if .Line then .Line else .Match end) + "\n"
+    #         "🔑 Fingerprint: \(.Fingerprint)\n" +
+    #         "📄 File: \(.File)\n" +
+    #         "📝 Rule: \(.RuleID)\n" +
+    #         "ℹ️  Description: \(.Description // "No description")\n" +
+    #         "  🧩 Match: \(.Match)\n---"
     #       '
     #     fi
     #   shell: bash
