@@ -24,10 +24,6 @@ inputs:
   branch-name:
     description: "Branch name (used as test title)"
     required: true
-  baseline-file:
-    description: "Path to baseline JSON file"
-    required: false
-    default: ${{ github.action_path }}/baseline.json
   filtered-report-file:
     description: "Path to Gitleaks filtered (new findings) JSON output"
     required: false
