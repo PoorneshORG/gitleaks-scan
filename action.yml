@@ -56,7 +56,7 @@ runs:
       id: baseline
       shell: bash
       run: |
-        BASELINE="${{ inputs.baseline-file }}"
+        BASELINE="${GITHUB_ACTION_PATH}/baseline.json"
         REPORT="${{ inputs.report-file }}"
         FILTERED="${{ inputs.filtered-report-file }}"
 
