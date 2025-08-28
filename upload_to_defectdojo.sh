@@ -100,6 +100,14 @@ SCAN_FILE="$TMP_FILE"
 # -------------------------
 # Step 5: Upload or reimport scan
 # -------------------------
+if [ "$SECRETS_FOUND" -gt 0 ]; then
+  echo "🔒 Secrets found ($SECRETS_FOUND) → uploading scan to DefectDojo..."
+else
+  echo "ℹ️ No secrets found → reimporting empty scan to close old findings (if any)..."
+fi
+# -------------------------
+# Step 6: Upload or reimport scan
+# -------------------------
 curl -s -X POST "$DOJO_URL/api/v2/reimport-scan/" \
   -H "$AUTH_HEADER" \
   -F "scan_date=$DATE" \
