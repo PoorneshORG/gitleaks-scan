@@ -86,8 +86,8 @@ runs:
             "🔢 Line: \(.StartLine // "N/A")\n" +
             "📝 Rule: [\(.RuleID)] - \(.Description // "No description")\n" +
             (
-              if (.Match | test("=")) then
-                "🧩 Match: " + (.Match | split("=")[0]) + " = " + (.Match | split("=")[1])
+              if .Line then
+                "🧩 Match: \(.Line)"
               else
                 "🧩 Match: \(.Match)"
               end
