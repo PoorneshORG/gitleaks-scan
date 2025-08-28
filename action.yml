@@ -28,7 +28,11 @@ inputs:
     description: "Path to baseline JSON file"
     required: false
     default: ${{ github.action_path }}/baseline.json
-
+  filtered-report-file:
+    description: "Path to Gitleaks filtered (new findings) JSON output"
+    required: false
+    default: gitleaks-new.json
+    
 runs:
   using: "composite"
   steps:
@@ -58,7 +62,7 @@ runs:
       run: |
         BASELINE="${{ inputs.baseline-file }}"
         REPORT="${{ inputs.report-file }}"
-        FILTERED="gitleaks-new.json"
+        FILTERED="${{ inputs.filtered-report-file }}"
 
         if [ ! -f "$BASELINE" ]; then
           echo "⚠️ No baseline file found → treating all findings as new."
@@ -117,7 +121,7 @@ runs:
           "${{ inputs.dojo-url }}" \
           "${{ inputs.dojo-api-key }}" \
           "${{ inputs.product-name }}" \
-          "${{ inputs.baseline-file }}" \
+          "${{ inputs.filtered-report-file }}" \
           "$REPO_NAME" \
           "$TEST_TITLE"
       shell: bash
