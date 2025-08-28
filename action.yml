@@ -83,11 +83,28 @@ runs:
           echo "🛑 After comparing with baseline → Found ${{ steps.baseline.outputs.new_count }} new secret(s):"
           echo '${{ steps.baseline.outputs.new_findings }}' | jq -r '
             .[] |
-            "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n" +
-            "  🧩 Match: " + (if .Line then .Line else .Match end) + "\n"
+            "🔑 Fingerprint: \(.Fingerprint)\n" +
+            "📄 File: \(.File)\n" +
+            "📝 Rule: \(.RuleID)\n" +
+            "ℹ️  Description: \(.Description // "No description")\n" +
+            "  🧩 Match: \(.Match)\n---"
           '
         fi
       shell: bash
+
+    # - name: 📝 Unified summary
+    #   run: |
+    #     if [ "${{ steps.baseline.outputs.new_count }}" -eq 0 ]; then
+    #       echo "✅ After comparing with baseline → No new secrets detected."
+    #     else
+    #       echo "🛑 After comparing with baseline → Found ${{ steps.baseline.outputs.new_count }} new secret(s):"
+    #       echo '${{ steps.baseline.outputs.new_findings }}' | jq -r '
+    #         .[] |
+    #         "\(.File):\(.StartLine) [\(.RuleID)] - \(.Description // "No description")\n" +
+    #         "  🧩 Match: " + (if .Line then .Line else .Match end) + "\n"
+    #       '
+    #     fi
+    #   shell: bash
 
     - name: 📤 Upload full Gitleaks report to DefectDojo
       run: |
