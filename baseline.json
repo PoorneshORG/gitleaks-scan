@@ -40,6 +40,24 @@
     "File": ".env",
     "RuleID": "stripe-access-token",
     "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
+  },
+  {
+    "Fingerprint": "e1c5b52eff48ae7ad55deb088362e20938c80ea1:.env:stripe-access-token:1",
+    "File": ".env",
+    "RuleID": "stripe-access-token",
+    "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
+  },
+  {
+    "Fingerprint": "732983242f14ac838a86b386df8542aee5f198be:README.md:stripe-access-token:1",
+    "File": "README.md",
+    "RuleID": "stripe-access-token",
+    "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
+  },
+  {
+    "Fingerprint": "e1c5b52eff48ae7ad55deb088362e20938c80ea1:.env:stripe-access-token:4",
+    "File": ".env",
+    "RuleID": "stripe-access-token",
+    "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
   }
 
 ]
