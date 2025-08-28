@@ -75,6 +75,14 @@ runs:
         echo "new_count=$NEW_COUNT" >> $GITHUB_OUTPUT
         echo "new_findings=$(cat "$FILTERED" | jq -c .)" >> $GITHUB_OUTPUT
 
+        # 📝 Log a summary for visibility
+        if [ "$NEW_COUNT" -eq 0 ]; then
+          echo "✅ After comparing with baseline → No new secrets detected."
+        else
+          echo "🛑 After comparing with baseline → Found $NEW_COUNT new secret(s)."
+          jq -r '.[] | "📄 File: \(.File)\n🧩 Fingerprint: \(.Fingerprint)\n---"' "$FILTERED"
+        fi
+
     - name: 📝 Print Gitleaks summary (new findings only)
       if: steps.baseline.outputs.new_count != '0'
       run: |
