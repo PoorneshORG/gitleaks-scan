@@ -54,11 +54,10 @@
     "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
   },
   {
-    "Fingerprint": "e1c5b52eff48ae7ad55deb088362e20938c80ea1:.env:stripe-access-token:4",
+    "Fingerprint": "ed6d09b96ade71950b6afbd36b9119850b610c01:.env:stripe-access-token:1",
     "File": ".env",
     "RuleID": "stripe-access-token",
     "Description": "Found a Stripe Access Token, posing a risk to payment processing services and sensitive financial data."
   }
 
 ]
-
