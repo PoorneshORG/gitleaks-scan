@@ -87,12 +87,12 @@ else
 fi
 
 # -------------------------
-# Step 4.5: Rewrite findings naming
+# Step 4.5: Rewrite findings naming (force repo-branch-rule)
 # -------------------------
 TMP_FILE="gitleaks-report-updated.json"
 jq --arg repo "$REPO_NAME" --arg branch "$BRANCH_NAME" '
   map(
-    .Description = ($repo + "-" + $branch + "-" + (.Rule // "secret"))
+    .Description = ($repo + "-" + $branch + "-" + (.Rule? // .rule? // .RuleID? // "secret"))
   )
 ' "$SCAN_FILE" > "$TMP_FILE"
 SCAN_FILE="$TMP_FILE"
