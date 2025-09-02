@@ -1,1 +1,3 @@
 
+# Ignore Stripe test token in .env
+ed6d09b96ade71950b6afbd36b9119850b610c01:.env:stripe-access-token:4
