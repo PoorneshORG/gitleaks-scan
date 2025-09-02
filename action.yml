@@ -40,14 +40,14 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
-    - name: 🚫 Fail if .gitleaksignore exists
-      run: |
-        if [ -f ".gitleaksignore" ]; then
-          echo "🛑 .gitleaksignore file detected in repo! This is not allowed at org level."
-          echo "👉 Use baseline.json for suppressions instead."
-          exit 1
-        fi
-      shell: bash
+    # - name: 🚫 Fail if .gitleaksignore exists
+    #   run: |
+    #     if [ -f ".gitleaksignore" ]; then
+    #       echo "🛑 .gitleaksignore file detected in repo! This is not allowed at org level."
+    #       echo "👉 Use baseline.json for suppressions instead."
+    #       exit 1
+    #     fi
+    #   shell: bash
 
     - name: 🕵️ Run Gitleaks scan (diff only)
       run: |
@@ -56,13 +56,20 @@ runs:
           -v "$GITHUB_WORKSPACE:/app" \
           -w /app \
           ghcr.io/poorneshorg/gitleaks:latest \
-          -c "git config --global --add safe.directory /app && \
-              gitleaks detect \
-                --source=/app \
-                --log-opts='origin/${{ github.base_ref }}..HEAD' \
-                --report-format=json \
-                --report-path=/app/${{ inputs.report-file }} \
-                --exit-code 1 || true"
+          -c '
+            git config --global --add safe.directory /app
+            if find /app -maxdepth 1 -name ".gitleaksignore" | grep -q .; then
+              echo "🛑 .gitleaksignore file detected in repo! This is not allowed at org level."
+              exit 1
+            fi
+            gitleaks detect \
+              --source=/app \
+              --log-opts="origin/${{ github.base_ref }}..HEAD" \
+              --report-format=json \
+              --report-path=/app/${{ inputs.report-file }} \
+              --gitleaks-ignore-path=/dev/null \
+              --exit-code 1 || true
+          '
       shell: bash
 
     - name: 🔎 Filter new findings against baseline
