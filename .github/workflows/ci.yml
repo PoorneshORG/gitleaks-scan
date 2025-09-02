@@ -28,7 +28,7 @@ jobs:
 
       - name: 🔍 Secret Scan & Upload
         uses: PoorneshORG/gitleaks-scan@baseline-action
-        continue-on-error: true
+        continue-on-error: false
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
