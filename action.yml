@@ -40,6 +40,15 @@ runs:
       run: echo "${{ inputs.token }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
       shell: bash
 
+    - name: 🚫 Fail if .gitleaksignore exists
+      run: |
+        if [ -f ".gitleaksignore" ]; then
+          echo "🛑 .gitleaksignore file detected in repo! This is not allowed at org level."
+          echo "👉 Use baseline.json for suppressions instead."
+          exit 1
+        fi
+      shell: bash
+
     - name: 🕵️ Run Gitleaks scan (diff only)
       run: |
         docker run --rm \
@@ -53,7 +62,6 @@ runs:
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 --report-path=/app/${{ inputs.report-file }} \
-                --gitleaks-ignore-path=/dev/null \
                 --exit-code 1 || true"
       shell: bash
 
