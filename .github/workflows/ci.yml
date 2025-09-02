@@ -28,13 +28,12 @@ jobs:
 
       - name: 🔍 Secret Scan & Upload
         uses: PoorneshORG/gitleaks-scan@baseline-action
-        continue-on-error: true
+        continue-on-error: false
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           dojo-url: ${{ secrets.DEFECTDOJO_URL }}
           dojo-api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
           product-name: DevSecOps
-          report-file: gitleaks-report.json
+          report-file: filtered-gitleaks-report.json
           repo-name: ${{ github.repository }}
           branch-name: ${{ github.head_ref || github.ref_name }}
-          
