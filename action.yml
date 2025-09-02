@@ -53,6 +53,7 @@ runs:
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 --report-path=/app/${{ inputs.report-file }} \
+                --exclude-paths=/dev/null \
                 --exit-code 1 || true"
       shell: bash
 
