@@ -53,7 +53,7 @@ runs:
                 --log-opts='origin/${{ github.base_ref }}..HEAD' \
                 --report-format=json \
                 --report-path=/app/${{ inputs.report-file }} \
-                --exclude-paths=/dev/null \
+                --gitleaks-ignore-path=/dev/null \
                 --exit-code 1 || true"
       shell: bash
 
